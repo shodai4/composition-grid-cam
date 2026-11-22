@@ -19,7 +19,13 @@ ls -d /Applications/Xcode*.app || true
 
 echo "== 計算ロジックの自己点検"
 python3 scripts/verify-logic.py
-python3 scripts/check-syntax.py
+# 構文点検は test ジョブ（tree-sitter 導入済み）で済んでいる。ここでは、
+# 入っているときだけ走らせる（macOS ランナーには tree-sitter が無い）。
+if python3 -c "import tree_sitter, tree_sitter_swift" >/dev/null 2>&1; then
+  python3 scripts/check-syntax.py
+else
+  echo "（tree-sitter 未導入のため構文点検は省略。test ジョブで実施済み）"
+fi
 
 echo "== XcodeGen"
 if ! command -v xcodegen >/dev/null 2>&1; then
